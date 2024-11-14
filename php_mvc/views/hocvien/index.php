@@ -41,7 +41,6 @@
                         <?php echo $item['status_id'] == 1 ? 'Active' : 'Inactive'; ?>
                     </td>
                     <td>
-                        <!-- Edit and Delete Actions -->
                         <a class="text-decoration-none" href="index.php?controller=hocvien&action=showUpdateHocVien&id_hoc_vien=<?php echo $item['id_hoc_vien']; ?>">
                             <i class="bi bi-pencil-square" style="color: #0d6efd;"></i>
                         </a>

@@ -21,6 +21,15 @@ class LopHoc
         return $list;
     }
 
+    static function checkId()
+    {
+        $db = DB::getInstance();
+        $sql = 'SELECT COUNT(*) FROM lop_hoc WHERE ma_lop_hoc = :ma_lop_hoc';
+        $req = $db->prepare($sql);
+        $req->execute(['ma_lop_hoc' => $_GET['ma_lop_hoc']]);
+        return $req->fetchColumn();
+    }
+
     public static function find($id_lop_hoc)
     {
         $db = DB::getInstance();
@@ -37,12 +46,12 @@ class LopHoc
         return null;
     }
 
-    public function saveOrUpdate()
+    public function saveOrUpdate($params = array())
     {
         try {
             $db = DB::getInstance();
 
-            if (isset($this->id_lop_hoc)) {
+            if (isset($params['id_lop_hoc'])) {
                 $sql = 'UPDATE ' . self::$tableName . ' SET 
                             ma_lop_hoc = :ma_lop_hoc, 
                             ten_lop_hoc = :ten_lop_hoc, 
@@ -55,13 +64,13 @@ class LopHoc
                 $req = $db->prepare($sql);
 
                 $req->execute(array(
-                    'ma_lop_hoc' => $this->ma_lop_hoc,
-                    'ten_lop_hoc' => $this->ten_lop_hoc,
-                    'start_time_lop' => $this->start_time_lop,
-                    'end_time_lop' => $this->end_time_lop,
-                    'status_id' => $this->status_id,
-                    'id_khoa_hoc' => $this->id_khoa_hoc,
-                    'id_lop_hoc' => $this->id_lop_hoc
+                    'ma_lop_hoc' => $params['ma_lop_hoc'],
+                    'ten_lop_hoc' => $params['ten_lop_hoc'],
+                    'start_time_lop' => $params['start_time_lop'],
+                    'end_time_lop' => $params['end_time_lop'],
+                    'status_id' => $params['status_id'],
+                    'id_khoa_hoc' => $params['id_khoa_hoc'],
+                    'id_lop_hoc' => $params['id_lop_hoc']
                 ));
             } else {
                 $sql = 'INSERT INTO ' . self::$tableName . ' (ma_lop_hoc, ten_lop_hoc, start_time_lop, end_time_lop, status_id, id_khoa_hoc) 
@@ -69,12 +78,12 @@ class LopHoc
                 $req = $db->prepare($sql);
 
                 $req->execute(array(
-                    'ma_lop_hoc' => $this->ma_lop_hoc,
-                    'ten_lop_hoc' => $this->ten_lop_hoc,
-                    'start_time_lop' => $this->start_time_lop,
-                    'end_time_lop' => $this->end_time_lop,
-                    'status_id' => $this->status_id,
-                    'id_khoa_hoc' => $this->id_khoa_hoc
+                    'ma_lop_hoc' => $params['ma_lop_hoc'],
+                    'ten_lop_hoc' => $params['ten_lop_hoc'],
+                    'start_time_lop' => $params['start_time_lop'],
+                    'end_time_lop' => $params['end_time_lop'],
+                    'status_id' => $params['status_id'],
+                    'id_khoa_hoc' => $params['id_khoa_hoc']
                 ));
             }
             return $req->rowCount() > 0;
@@ -83,9 +92,9 @@ class LopHoc
             return false;
         }
     }
-    public function remove()
+    public function remove($params = array())
     {
-        if (!isset($this->id_lop_hoc)) {
+        if (!isset($params['id_lop_hoc'])) {
             return false;
         }
 
@@ -93,7 +102,7 @@ class LopHoc
             $db = DB::getInstance();
             $sql = 'DELETE FROM ' . self::$tableName . ' WHERE id_lop_hoc = :id_lop_hoc';
             $req = $db->prepare($sql);
-            $req->execute(array('id_lop_hoc' => $this->id_lop_hoc));
+            $req->execute(array('id_lop_hoc' => $params['id_lop_hoc']));
 
             return $req->rowCount() > 0;
         } catch (PDOException $e) {

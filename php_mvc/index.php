@@ -39,7 +39,7 @@ function dd(...$input)
 
 require_once('connection.php');
 
-if (isset($_GET['controller'])) {
+/*if (isset($_GET['controller'])) {
     $controller = $_GET['controller'];
     if (isset($_GET['action'])) {
         $action = $_GET['action'];
@@ -49,5 +49,18 @@ if (isset($_GET['controller'])) {
 } else {
     $controller = 'pages';
     $action = 'home';
+}*/
+
+
+
+$controller = 'pages';
+$action = 'home';
+if (isset($_GET['controller'])) {
+    $controller = $_GET['controller'];
+    $action = 'index';
+    if (isset($_GET['action'])) {
+        $action = $_GET['action'];
+    }
 }
+
 require_once('routes.php');

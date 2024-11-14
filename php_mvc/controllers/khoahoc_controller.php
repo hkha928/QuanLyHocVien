@@ -11,13 +11,11 @@ class KhoaHocController extends BaseController
     public function index()
     {
         $khoahoc = KhoaHoc::all();
-        $data = $khoahoc;
         $this->render('index', $khoahoc);
     }
     public function showKhoaHoc()
     {
-        $khoahoc = KhoaHoc::find($_GET['id_khoa_hoc']);
-        $data = $khoahoc;
+        $data = KhoaHoc::find($_GET['id_khoa_hoc']);
         $this->render('show', $data);
     }
     public function showAddKhoaHoc()
@@ -26,22 +24,13 @@ class KhoaHocController extends BaseController
     }
     public function showUpdateKhoaHoc()
     {
-        $khoahoc = KhoaHoc::find($_GET['id_khoa_hoc']);
-        $data = $khoahoc;
+        $data = KhoaHoc::find($_GET['id_khoa_hoc']);
         $this->render('update', $data);
     }
     public function checkMaKhoaHoc()
     {
         if (isset($_GET['ma_khoa_hoc'])) {
-            $ma_khoa_hoc = $_GET['ma_khoa_hoc'];
-
-            $db = DB::getInstance();
-            $sql = 'SELECT COUNT(*) FROM khoa_hoc WHERE ma_khoa_hoc = :ma_khoa_hoc';
-            $req = $db->prepare($sql);
-            $req->execute(['ma_khoa_hoc' => $ma_khoa_hoc]);
-            $count = $req->fetchColumn();
-
-            if ($count > 0) {
+            if (KhoaHoc::checkId() > 0) {
                 echo 'exists';
             } else {
                 echo 'available';
@@ -53,20 +42,15 @@ class KhoaHocController extends BaseController
     public function addKhoaHoc()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $ma_khoa_hoc = $_POST['ma_khoa_hoc'];
-            $ten_khoa_hoc = $_POST['ten_khoa_hoc'];
-            $ngay_bat_dau_kh = $_POST['ngay_bat_dau_kh'];
-            $ngay_ket_thuc_kh = $_POST['ngay_ket_thuc_kh'];
-            $status_id = $_POST['status_id'];
-
             $newKhoaHoc = new KhoaHoc();
-            $newKhoaHoc->ma_khoa_hoc = $ma_khoa_hoc;
-            $newKhoaHoc->ten_khoa_hoc = $ten_khoa_hoc;
-            $newKhoaHoc->ngay_bat_dau_kh = $ngay_bat_dau_kh;
-            $newKhoaHoc->ngay_ket_thuc_kh = $ngay_ket_thuc_kh;
-            $newKhoaHoc->status_id = $status_id;
 
-            $newKhoaHoc->saveOrUpdate();
+            $newKhoaHoc->saveOrUpdate([
+                'ma_khoa_hoc' => $_POST['ma_khoa_hoc'],
+                'ten_khoa_hoc' => $_POST['ten_khoa_hoc'],
+                'ngay_bat_dau_kh' => $_POST['ngay_bat_dau_kh'],
+                'ngay_ket_thuc_kh' => $_POST['ngay_ket_thuc_kh'],
+                'status_id' => $_POST['status_id']
+            ]);
 
             header('Location: index.php?controller=khoahoc&action=index&status=insert-success');
         } else {
@@ -77,30 +61,27 @@ class KhoaHocController extends BaseController
     public function updateKhoaHoc()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id_khoa_hoc = $_POST['id_khoa_hoc'];
-            $khoahoc = KhoaHoc::find($id_khoa_hoc);
+            $khoahoc = KhoaHoc::find($_POST['id_khoa_hoc']);
 
             if ($khoahoc) {
                 $newKhoaHoc = new KhoaHoc();
-                $newKhoaHoc->id_khoa_hoc = $_POST['id_khoa_hoc'];
-                $newKhoaHoc->ma_khoa_hoc = $_POST['ma_khoa_hoc'];
-                $newKhoaHoc->ten_khoa_hoc = $_POST['ten_khoa_hoc'];
-                $newKhoaHoc->ngay_bat_dau_kh = $_POST['ngay_bat_dau_kh'];
-                $newKhoaHoc->ngay_ket_thuc_kh = $_POST['ngay_ket_thuc_kh'];
-                $newKhoaHoc->status_id = $_POST['status_id'];
 
-                $newKhoaHoc->saveOrUpdate();
+                $newKhoaHoc->saveOrUpdate([
+                    'id_khoa_hoc' => $_POST['id_khoa_hoc'],
+                    'ma_khoa_hoc' => $_POST['ma_khoa_hoc'],
+                    'ten_khoa_hoc' => $_POST['ten_khoa_hoc'],
+                    'ngay_bat_dau_kh' => $_POST['ngay_bat_dau_kh'],
+                    'ngay_ket_thuc_kh' => $_POST['ngay_ket_thuc_kh'],
+                    'status_id' => $_POST['status_id']
+                ]);
                 header("Location: index.php?controller=khoahoc&action=index&status=update-success");
                 exit();
             } else {
                 echo "Course not found.";
             }
         } else {
-            $id_khoa_hoc = $_GET['id_khoa_hoc'];
-            $khoahoc = KhoaHoc::find($id_khoa_hoc);
-
-            if ($khoahoc) {
-                $data = $khoahoc;
+            $data = KhoaHoc::find($_GET['id_khoa_hoc']);
+            if ($data) {
                 $this->render('update', $data);
             } else {
                 echo "Course not found.";
@@ -111,17 +92,12 @@ class KhoaHocController extends BaseController
     public function removeKhoaHoc()
     {
         if (isset($_GET['id_khoa_hoc'])) {
-
-            $id_khoa_hoc = $_GET['id_khoa_hoc'];
-
-
-            $khoahoc = KhoaHoc::find($id_khoa_hoc);
-
-            if ($khoahoc) {
+            if (KhoaHoc::find($_GET['id_khoa_hoc'])) {
                 $khoahocToDelete = new KhoaHoc();
-                $khoahocToDelete->id_khoa_hoc = $id_khoa_hoc;
 
-                if ($khoahocToDelete->remove()) {
+                if ($khoahocToDelete->remove([
+                    'id_khoa_hoc' => $_GET['id_khoa_hoc']
+                ])) {
                     header('Location: index.php?controller=khoahoc&action=index&status=delete-success');
                     exit();
                 } else {

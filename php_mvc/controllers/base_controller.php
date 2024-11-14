@@ -12,6 +12,7 @@ class BaseController
             require_once($view_file);
             $content = ob_get_clean();
             require_once('views/layouts/application.php');
+            ob_end_clean();
         } else {
             header('Location: index.php?controller=pages&action=error');
         }

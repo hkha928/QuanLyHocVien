@@ -14,12 +14,32 @@ class HocVien
 
     static function all($params = array())
     {
+        // dd($params);
         $db = DB::getInstance();
         $sql = 'SELECT * FROM ' . self::$tableName;
-        $req = $db->query($sql);
-        $list = $req->fetchAll();
-        return $list;
+        if (isset($params['search'])) {
+            $searchValue = $params['search'];
+            $sql .= " WHERE ma_hoc_vien LIKE :search OR ten_hoc_vien LIKE :search OR sdt LIKE :search OR email LIKE :search";
+            $params = [':search' => "%$searchValue%"];
+            $req = $db->prepare($sql);
+            $req->execute($params);
+        } else {
+            $req = $db->prepare($sql);
+            $req->execute();
+        }
+
+        return $req->fetchAll();
     }
+
+    public static function checkId()
+    {
+        $db = DB::getInstance();
+        $sql = 'SELECT COUNT(*) FROM hoc_vien WHERE ma_hoc_vien = :ma_hoc_vien';
+        $req = $db->prepare($sql);
+        $req->execute(['ma_hoc_vien' => $_GET['ma_hoc_vien']]);
+        return $req->fetchColumn();
+    }
+
     public static function find($id_hoc_vien)
     {
         $db = DB::getInstance();
@@ -35,68 +55,13 @@ class HocVien
         }
         return null;
     }
-    /*public function save()
+
+    public function saveOrUpdate($params = array())
     {
-        $db = DB::getInstance();
-
-        // Prepare the SQL statement to insert the new record
-        $sql = 'INSERT INTO ' . self::$tableName . '(ma_hoc_vien, ten_hoc_vien, ngay_sinh, sdt, email, status_id) 
-                                VALUES (:ma_hoc_vien, :ten_hoc_vien, :ngay_sinh, :sdt, :email, :status_id)';
-        $req = $db->prepare($sql);
-
-        // Execute the statement with the values of the object
-        $req->execute(array(
-            'ma_hoc_vien' => $this->ma_hoc_vien,
-            'ten_hoc_vien' => $this->ten_hoc_vien,
-            'ngay_sinh' => $this->ngay_sinh,
-            'sdt' => $this->sdt,
-            'email' => $this->email,
-            'status_id' => $this->status_id
-        ));
-
-        // Check if the insert was successful (you can also handle the result accordingly)
-        if ($req->rowCount() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public function update()
-    {
-        $db = DB::getInstance();
-        $sql = 'UPDATE ' . self::$tableName . ' SET 
-                                ma_hoc_vien = :ma_hoc_vien, 
-                                ten_hoc_vien = :ten_hoc_vien, 
-                                ngay_sinh = :ngay_sinh, 
-                                sdt = :sdt, 
-                                email = :email, 
-                                status_id = :status_id 
-                                WHERE id_hoc_vien = :id_hoc_vien';
-        // Prepare the update query
-        $req = $db->prepare($sql);
-        //dd($req);
-        // Execute the update with the current object's values
-        $req->execute(array(
-            'ma_hoc_vien' => $this->ma_hoc_vien,
-            'ten_hoc_vien' => $this->ten_hoc_vien,
-            'ngay_sinh' => $this->ngay_sinh,
-            'sdt' => $this->sdt,
-            'email' => $this->email,
-            'status_id' => $this->status_id,
-            'id_hoc_vien' => $this->id_hoc_vien
-        ));
-        //dd($req);
-        return $req->rowCount() > 0;  // Check if the update was successful
-    }*/
-    public function saveOrUpdate()
-    {
-
         try {
             $db = DB::getInstance();
 
-            if (isset($this->id_hoc_vien)) {
-
+            if (isset($params['id_hoc_vien'])) {
                 $sql = 'UPDATE ' . self::$tableName . ' SET 
                             ma_hoc_vien = :ma_hoc_vien, 
                             ten_hoc_vien = :ten_hoc_vien, 
@@ -109,26 +74,27 @@ class HocVien
                 $req = $db->prepare($sql);
 
                 $req->execute(array(
-                    'ma_hoc_vien' => $this->ma_hoc_vien,
-                    'ten_hoc_vien' => $this->ten_hoc_vien,
-                    'ngay_sinh' => $this->ngay_sinh,
-                    'sdt' => $this->sdt,
-                    'email' => $this->email,
-                    'status_id' => $this->status_id,
-                    'id_hoc_vien' => $this->id_hoc_vien
+                    'ma_hoc_vien' => $params['ma_hoc_vien'],
+                    'ten_hoc_vien' => $params['ten_hoc_vien'],
+                    'ngay_sinh' => $params['ngay_sinh'],
+                    'sdt' => $params['sdt'],
+                    'email' => $params['email'],
+                    'status_id' => $params['status_id'],
+                    'id_hoc_vien' => $params['id_hoc_vien']
                 ));
             } else {
                 $sql = 'INSERT INTO ' . self::$tableName . '(ma_hoc_vien, ten_hoc_vien, ngay_sinh, sdt, email, status_id) 
                                 VALUES (:ma_hoc_vien, :ten_hoc_vien, :ngay_sinh, :sdt, :email, :status_id)';
+
                 $req = $db->prepare($sql);
 
                 $req->execute(array(
-                    'ma_hoc_vien' => $this->ma_hoc_vien,
-                    'ten_hoc_vien' => $this->ten_hoc_vien,
-                    'ngay_sinh' => $this->ngay_sinh,
-                    'sdt' => $this->sdt,
-                    'email' => $this->email,
-                    'status_id' => $this->status_id
+                    'ma_hoc_vien' => $params['ma_hoc_vien'],
+                    'ten_hoc_vien' => $params['ten_hoc_vien'],
+                    'ngay_sinh' => $params['ngay_sinh'],
+                    'sdt' => $params['sdt'],
+                    'email' => $params['email'],
+                    'status_id' => $params['status_id']
                 ));
             }
             return $req->rowCount() > 0;
@@ -137,22 +103,22 @@ class HocVien
             return false;
         }
     }
-    public function remove()
+    public function remove($params = array())
     {
-        if (!isset($this->id_hoc_vien)) {
-            return false; // If there's no ID, there's nothing to delete
+        if (!isset($params['id_hoc_vien'])) {
+            return false;
         }
 
         try {
             $db = DB::getInstance();
             $sql = 'DELETE FROM ' . self::$tableName . ' WHERE id_hoc_vien = :id_hoc_vien';
             $req = $db->prepare($sql);
-            $req->execute(array('id_hoc_vien' => $this->id_hoc_vien));
+            $req->execute(array('id_hoc_vien' => $params['id_hoc_vien']));
 
-            return $req->rowCount() > 0; // Return true if a row was deleted
+            return $req->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
-            return false; // Return false if there was an error
+            return false;
         }
     }
 }
